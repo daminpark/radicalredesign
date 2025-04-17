@@ -252,17 +252,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- Content Injection ---
-     function fillModalContent(modalId, titleEn, titleKo, contentHtmlEn, contentHtmlKo) {
+    function fillModalContent(modalId, titleEn, titleKo, contentHtmlEn, contentHtmlKo) {
         const modal = document.getElementById(modalId);
         if (modal) {
             // Use more specific selectors if needed, e.g., data attributes or more specific IDs
             const titleElement = modal.querySelector('.modal-content h3');
             const contentElement = modal.querySelector('.modal-content .prose');
             if (titleElement && contentElement) {
-                // Inject titles - *FIX: Do not add 'hidden' class here*
-                titleElement.innerHTML = `<span class="lang-en">${titleEn}</span><span class="lang-ko">${titleKo}</span>`;
-                 // Inject content wrapped in language divs - *FIX: Do not add 'hidden' class here*
-                 contentElement.innerHTML = `<div class="lang-en">${contentHtmlEn}</div><div class="lang-ko">${contentHtmlKo}</div>`;
+                // *** CORRECTED LINES ***
+                titleElement.innerHTML = `<span class="lang-en">${titleEn}</span><span class="lang-ko">${titleKo}</span>`; // NO hidden class
+                 contentElement.innerHTML = `<div class="lang-en">${contentHtmlEn}</div><div class="lang-ko">${contentHtmlKo}</div>`; // NO hidden class
+                 // *** END CORRECTION ***
+    
                  // IMPORTANT: setLanguage (called via initLanguage) runs AFTER this and will set the correct initial display style
              } else {
                  console.warn(`Could not find title or content elements in modal: ${modalId}`);
