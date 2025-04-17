@@ -566,7 +566,7 @@
                              </li>
                          </ul>
                          <div class="mt-6">
-                             <a href="https://map.naver.com/p/search/런던치과 의원" target="_blank" rel="noopener noreferrer" class="btn btn-primary inline-flex items-center group">
+                             <a href="https://map.naver.com/p/search/%EB%9F%B0%EB%8D%98%EC%B9%98%EA%B3%BC%EC%9D%98%EC%9B%90/place/1400948670?c=15.00,0,0,0,dh&placePath=%3Fentry%253Dbmp" target="_blank" rel="noopener noreferrer" class="btn btn-primary inline-flex items-center group">
                                  <i class="fa-brands fa-naver mr-2 text-lg group-hover:scale-110 transition-transform"></i> <!-- Using Naver Brand icon -->
                                  <span class="lang-en">View on Naver Map</span>
                                  <span class="lang-ko hidden">네이버 지도 보기</span>
@@ -705,6 +705,7 @@
     <div id="modals-container">
         <!-- Individual modals will be placed here by the script or manually -->
         <!-- Example: About Fiona Park Modal -->
+        <!-- Example: About Fiona Park Modal (Existing) -->
         <div id="about-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="about-modal-title">
             <div class="modal-content">
                 <button class="modal-close" aria-label="Close modal">×</button>
@@ -743,17 +744,34 @@
         </div>
         <!-- Add other modals here (Equipment, First Appointment, Procedures, Privacy, FAQ, Image Lightbox) using the same structure -->
 
-         <!-- Image Lightbox Modal Structure -->
-        <div id="image-modal" class="modal hidden" role="dialog" aria-modal="true" aria-label="Image Preview">
+        <!-- *** FIX: Add the missing modal structure *** -->
+        <div id="first-appointment-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="first-appointment-modal-title">
+            <div class="modal-content">
+                <button class="modal-close" aria-label="Close modal">×</button>
+                <h3 id="first-appointment-modal-title" class="text-2xl font-bold mb-4 text-gray-800 font-poppins">
+                    <!-- Title will be injected by JS -->
+                </h3>
+                 <div class="prose max-w-none">
+                    <!-- Content will be injected by JS -->
+                 </div>
+            </div>
+        </div>
+        <!-- *** END FIX *** -->
+
+
+         <!-- Image Lightbox Modal Structure (Existing) -->
+         <div id="image-modal" class="modal hidden" role="dialog" aria-modal="true" aria-label="Image Preview">
             <div class="modal-content">
                 <button class="modal-close" aria-label="Close image preview">×</button>
                  <img id="lightbox-image" src="" alt="Enlarged gallery image" class="block max-w-full max-h-full object-contain">
              </div>
          </div>
 
+
+
          <!-- FAQ Modal (Placeholder) -->
-        <div id="faq-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="faq-modal-title">
-             <div class="modal-content">
+         <div id="faq-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="faq-modal-title">
+            <div class="modal-content">
                  <button class="modal-close" aria-label="Close FAQ modal">×</button>
                  <h3 id="faq-modal-title" class="text-2xl font-bold mb-6 text-gray-800 font-poppins">
                     <span class="lang-en">Frequently Asked Questions</span>
@@ -780,7 +798,8 @@
              </div>
         </div>
 
-        <!-- Privacy Policy Modal -->
+
+        <!-- Privacy Policy Modal (Existing) -->
         <div id="privacy-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="privacy-modal-title">
              <div class="modal-content">
                  <button class="modal-close" aria-label="Close Privacy Policy modal">×</button>
@@ -804,26 +823,27 @@
              </div>
         </div>
 
-        <!-- Placeholder for Procedure Modals (Add content from previous code for each procedure) -->
-         <div id="oral-exams-modal" class="modal hidden"> <div class="modal-content"> <button class="modal-close">×</button> <!-- Content for Oral Exams --> </div> </div>
-         <div id="implants-modal" class="modal hidden"> <div class="modal-content"> <button class="modal-close">×</button> <!-- Content for Implants --> </div> </div>
-         <div id="hygiene-modal" class="modal hidden"> <div class="modal-content"> <button class="modal-close">×</button> <!-- Content for Hygiene --> </div> </div>
-         <div id="extractions-modal" class="modal hidden"> <div class="modal-content"> <button class="modal-close">×</button> <!-- Content for Extractions --> </div> </div>
-         <div id="cosmetic-modal" class="modal hidden"> <div class="modal-content"> <button class="modal-close">×</button> <!-- Content for Cosmetic --> </div> </div>
-         <div id="restorative-modal" class="modal hidden"> <div class="modal-content"> <button class="modal-close">×</button> <!-- Content for Restorative --> </div> </div>
-         <div id="prosthodontics-modal" class="modal hidden"> <div class="modal-content"> <button class="modal-close">×</button> <!-- Content for Prosthodontics --> </div> </div>
-         <div id="equipment-modal" class="modal hidden"> <div class="modal-content"> <button class="modal-close">×</button> <!-- Content for Equipment --> </div> </div>
+
+        <!-- Placeholder for Procedure Modals (Existing) -->
+        <div id="oral-exams-modal" class="modal hidden"> <div class="modal-content"> <button class="modal-close">×</button> <h3 class="text-2xl font-bold mb-4 text-gray-800 font-poppins"></h3><div class="prose max-w-none"></div> </div> </div>
+        <div id="implants-modal" class="modal hidden"> <div class="modal-content"> <button class="modal-close">×</button> <h3 class="text-2xl font-bold mb-4 text-gray-800 font-poppins"></h3><div class="prose max-w-none"></div> </div> </div>
+        <div id="hygiene-modal" class="modal hidden"> <div class="modal-content"> <button class="modal-close">×</button> <h3 class="text-2xl font-bold mb-4 text-gray-800 font-poppins"></h3><div class="prose max-w-none"></div> </div> </div>
+        <div id="extractions-modal" class="modal hidden"> <div class="modal-content"> <button class="modal-close">×</button> <h3 class="text-2xl font-bold mb-4 text-gray-800 font-poppins"></h3><div class="prose max-w-none"></div> </div> </div>
+        <div id="cosmetic-modal" class="modal hidden"> <div class="modal-content"> <button class="modal-close">×</button> <h3 class="text-2xl font-bold mb-4 text-gray-800 font-poppins"></h3><div class="prose max-w-none"></div> </div> </div>
+        <div id="restorative-modal" class="modal hidden"> <div class="modal-content"> <button class="modal-close">×</button> <h3 class="text-2xl font-bold mb-4 text-gray-800 font-poppins"></h3><div class="prose max-w-none"></div> </div> </div>
+        <div id="prosthodontics-modal" class="modal hidden"> <div class="modal-content"> <button class="modal-close">×</button> <h3 class="text-2xl font-bold mb-4 text-gray-800 font-poppins"></h3><div class="prose max-w-none"></div> </div> </div>
+        <div id="equipment-modal" class="modal hidden"> <div class="modal-content"> <button class="modal-close">×</button> <h3 class="text-2xl font-bold mb-4 text-gray-800 font-poppins"></h3><div class="prose max-w-none"></div> </div> </div>
 
 
-    </div> <!-- End Modals Container -->
+   </div> <!-- End Modals Container -->
 
-    <!-- Back to Top Button -->
-     <button id="back-to-top" title="Back to Top" aria-label="Scroll back to top">
-        <i class="fas fa-arrow-up"></i>
-    </button>
+   <!-- Back to Top Button -->
+    <button id="back-to-top" title="Back to Top" aria-label="Scroll back to top">
+       <i class="fas fa-arrow-up"></i>
+   </button>
 
-    <!-- JavaScript File -->
-    <script src="./script.js"></script>
+   <!-- JavaScript File -->
+   <script src="./script.js"></script>
 
 </body>
 </html>

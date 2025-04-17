@@ -1,3 +1,5 @@
+// --- START OF FILE script.js ---
+
 "use strict"; // Enable strict mode
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -24,7 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
         copyrightYear: document.getElementById('copyright-year'),
         backToTopButton: document.getElementById('back-to-top'),
         animatedElements: document.querySelectorAll('.animate-on-scroll'), // Ensure elements have this class in HTML
-        galleryItems: document.querySelectorAll('.gallery-item a'), // Target the links inside gallery items now
+        // *FIX: Target the images inside gallery items now*
+        galleryItems: document.querySelectorAll('.gallery-item img'),
         imageModal: document.getElementById('image-modal'),
         lightboxImage: document.getElementById('lightbox-image'),
         modalsContainer: document.getElementById('modals-container'), // Assuming modals are inside this
@@ -111,26 +114,27 @@ document.addEventListener('DOMContentLoaded', () => {
              }
          }
 
-        // Standard triggers
+        // Standard triggers (now ignores gallery items automatically due to selector change)
         modalTriggers.forEach(trigger => {
-            if (!trigger.closest('.gallery-item')) { // Avoid double-binding gallery items
-                trigger.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const targetModalId = trigger.getAttribute('data-modal-target');
-                    const targetModal = document.getElementById(targetModalId);
-                    if(targetModal) openModal(targetModal);
-                });
-            }
+            trigger.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetModalId = trigger.getAttribute('data-modal-target');
+                const targetModal = document.getElementById(targetModalId);
+                if(targetModal) openModal(targetModal);
+            });
         });
 
-         // Gallery item triggers
+         // *FIX: Gallery item triggers now target the IMG elements*
          galleryItems.forEach(item => {
              item.addEventListener('click', (e) => {
                  e.preventDefault();
-                 const imgSrc = item.getAttribute('href') || item.dataset.imageSrc;
+                 // *FIX: Get src from clicked img or data-image-src*
+                 const imgSrc = item.dataset.imageSrc || item.src;
                  if (imgSrc && imageModal && elements.lightboxImage) {
                      elements.lightboxImage.src = imgSrc;
                      openModal(imageModal);
+                 } else {
+                     console.warn("Could not open image modal for:", item);
                  }
              });
          });
@@ -166,15 +170,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const targetLangCode = lang === 'ko' ? 'ko-KR' : 'en-GB';
             html.lang = targetLangCode;
 
-            // Optimize toggling - query only once if possible or use specific containers
+            // *** FIX: Use inline style for display, ignore Tailwind 'hidden' class ***
             document.querySelectorAll('.lang-en, .lang-ko').forEach(el => {
-                // Use display style instead of Tailwind class for direct manipulation
-                el.style.display = el.classList.contains(`lang-${lang}`) ? '' : 'none';
+                // Check if the element should be visible for the current language
+                const shouldBeVisible = el.classList.contains(`lang-${lang}`);
+                // Set display style directly
+                el.style.display = shouldBeVisible ? '' : 'none';
             });
+            // *** END FIX ***
 
             langButtons.forEach(btn => {
                 const isActive = btn.getAttribute('data-lang') === lang;
-                btn.classList.toggle('active', isActive);
+                btn.classList.toggle('active', isActive); // 'active' class controls styling (bold/underline)
                 btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
             });
             try { localStorage.setItem('preferredLang', lang); } catch (e) { console.warn("LocalStorage error:", e);}
@@ -202,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
                  if (browserLang.startsWith('ko')) initialLang = 'ko';
              }
          } catch (e) {}
-         window.setLanguage(initialLang); // Call the global function to set initial state
+         window.setLanguage(initialLang); // Call the global function to set initial state AFTER content is injected
     }
 
     function initCopyright() {
@@ -241,8 +248,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function initAccordions() {
         // Native <details> handles this, no JS needed unless custom animation is desired
-        // If custom animation: querySelectorAll('.faq-item summary'), add click listener,
-        // preventDefault, toggle a class on the parent .faq-item, and use CSS transitions.
     }
 
 
@@ -250,14 +255,15 @@ document.addEventListener('DOMContentLoaded', () => {
      function fillModalContent(modalId, titleEn, titleKo, contentHtmlEn, contentHtmlKo) {
         const modal = document.getElementById(modalId);
         if (modal) {
-            const titleElement = modal.querySelector('.modal-content h3'); // Use ID for title for reliability
+            // Use more specific selectors if needed, e.g., data attributes or more specific IDs
+            const titleElement = modal.querySelector('.modal-content h3');
             const contentElement = modal.querySelector('.modal-content .prose');
             if (titleElement && contentElement) {
-                // Inject titles
-                titleElement.innerHTML = `<span class="lang-en">${titleEn}</span><span class="lang-ko hidden">${titleKo}</span>`;
-                 // Inject content wrapped in language divs
-                 contentElement.innerHTML = `<div class="lang-en">${contentHtmlEn}</div><div class="lang-ko hidden">${contentHtmlKo}</div>`;
-                 // IMPORTANT: Call setLanguage AFTER all modals are populated to set initial visibility correctly
+                // Inject titles - *FIX: Do not add 'hidden' class here*
+                titleElement.innerHTML = `<span class="lang-en">${titleEn}</span><span class="lang-ko">${titleKo}</span>`;
+                 // Inject content wrapped in language divs - *FIX: Do not add 'hidden' class here*
+                 contentElement.innerHTML = `<div class="lang-en">${contentHtmlEn}</div><div class="lang-ko">${contentHtmlKo}</div>`;
+                 // IMPORTANT: setLanguage (called via initLanguage) runs AFTER this and will set the correct initial display style
              } else {
                  console.warn(`Could not find title or content elements in modal: ${modalId}`);
              }
@@ -269,12 +275,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function injectModalContent() {
         console.log('Injecting modal content...');
 
-         // --- ABOUT MODAL (#pum-1158) ---
-         fillModalContent(
+        // --- ABOUT MODAL (#pum-1158) ---
+        fillModalContent(
             'about-modal',
-             'About Fiona Park',
-             '원장 박 지연',
-             `
+            'About Fiona Park',
+            '원장 박 지연',
+            // ... (rest of the content is unchanged) ...
+            `
              <p><strong>Experience</strong></p>
              <p><strong>– 2000</strong><br>Gagyeong Elementary and Middle School, Cheongju</p>
              <p><strong>2001 – 2003</strong><br>Roedean School, Brighton, UK</p>
@@ -290,7 +297,6 @@ document.addEventListener('DOMContentLoaded', () => {
              <p><strong>2015 –</strong><br>Korean Britain Society (KBS)</p>
              <p class="mt-6 text-xs text-gray-500">To schedule an appointment, call London Dental today at <a href="tel:+827321917" class="font-semibold text-teal-700 hover:underline">02-732-1917</a></p>
             `,
-            // Korean Fallback (using English content for now) - REPLACE IF YOU HAVE KOREAN BIO
             `
              <p><strong>약력</strong></p>
              <p><strong>– 2000</strong><br>가경 초등학교 중학교, 청주</p>
@@ -314,6 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
              'equipment-modal',
              'Our Equipment',
              '장비',
+             // ... (rest of the content is unchanged) ...
             `
             <h4>Digital CT X-ray (Vatech)</h4>
             <p>The dental profession has improved dramatically over the past 60+ years. Today, dental x-rays are far safer and much more convenient.</p>
@@ -333,7 +340,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <p>Find out more from <a href="https://www.zeiss.com/meditec/us/products/dentistry.html" target="_blank" rel="noopener noreferrer">Zeiss</a></p>
             <p class="mt-6 text-xs text-gray-500">To learn more or to schedule an appointment, call London Dental today at <a href="tel:+827321917" class="font-semibold text-teal-700 hover:underline">02-732-1917</a></p>
             `,
-             // Korean Fallback
             `
             <h4>디지털 CT 엑스-레이 (Vatech)</h4>
             <p>치과 시술법은 지난 60년 이상 동안 극적으로 발전되었습니다. 오늘날 치과용 엑스-레이는 훨씬 더 안전하고 편리합니다.</p>
@@ -359,15 +365,15 @@ document.addEventListener('DOMContentLoaded', () => {
         fillModalContent(
              'first-appointment-modal',
              'What to Expect at Your First Appointment',
-             '초진시 진료 안내', // Updated Korean Title
-            `
+             '초진시 진료 안내',
+             // ... (rest of the content is unchanged) ...
+             `
             <h4>Dental Consultation, Exam and Cleaning</h4>
             <p>At London Dental, we begin your first visit with a comprehensive examination of your teeth and gums to create a treatment plan that suits your unique oral needs. Your exam will include digital x-rays to detect decay between the teeth. We use digital x-rays because they are safer than traditional film. A routine examination with four bitewing x-rays exposes you to roughly the same amount of radiation you experience during one to two hours on an airplane. Each exam includes a cleaning during which our dental hygienist uses both hand instruments and a PiezoLED ultrasonic power scaler to gently break up plaque and tartar that build up below the gum line. Simultaneously, irrigation is applied to flush out harmful bacteria and biofilm in the gum pockets, which ultimately promotes healing. This technology allows our dental hygienist to safely treat patients in a shorter amount of time.</p>
             <p>Regular exams and cleanings prevent the accumulation of plaque and calculus around the teeth and under the gums. Removal of these deposits, through scaling, along with digital x-ray exams can help prevent tooth decay, gingivitis, bone loss, halitosis (bad breath), and tooth loss.</p>
             <p>At the end of your consultation, our team will review your at-home care plan so that you can maintain the health of your teeth.</p>
             <p class="mt-6 text-xs text-gray-500">To learn more about this service or to schedule an appointment, call London Dental today at <a href="tel:+827321917" class="font-semibold text-teal-700 hover:underline">02-732-1917</a></p>
             `,
-            // Korean
             `
             <h4>상담, 검진 및 클리닝</h4>
             <p>런던치과에서는 귀하의 구강에 알맞는 치료 계획을 수립하기 위해 치아와 잇몸 및 구강 조직에 대한 포괄적인 검사를 첫 방문에 시작합니다. 치과의사의 초진에는 치아 사이의 충치를 감지하기 위한 디지털 엑스-레이가 포함될 수 있습니다. 우리는 전통적인 필름보다 훨씬 더 안전한 디지털 엑스레이를 사용합니다. 4개의 교합 엑스-레이로 일상적인 검사를 하면 한두 시간 동안 비행기 탈 때 받는 정도의 방사선에 노출될 뿐입니다. 각 검사에는 치과 위생사가 손 기구와 피에조 LED 초음파 파워 스케일러를 사용하여 잇몸 부위에 쌓인 플라그와 치석을 부드럽게 분해해 주는 클리닝이 포함될 수 있습니다. 동시에 관주를 통해 잇몸 주머니에 있는 해로운 박테리아와 균막을 씻어내어 궁극적으로 치유를 촉진시킵니다. 이 시술을 통해 본원의 치과 의료진은 보다 짧은 시간에 안전하게 환부를 돌볼 수 있습니다.</p>
@@ -382,6 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
              'oral-exams-modal',
              'Comprehensive Oral Exams',
              '종합 구강 검진',
+             // ... (rest of the content is unchanged) ...
             `
             <p>The American Dental Association (ADA) recommends that new dental patients have a thorough exam on their first visit to their new dentist. Existing patients are advised to undergo the exam every year. Undergoing a comprehensive oral exam will take a whole appointment.</p>
             <p>The ADA defines a ‘comprehensive exam’ as “an extensive evaluation and the recording of all extraoral, intraoral, and soft tissues.”</p>
@@ -397,7 +404,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <p>A comprehensive oral examination helps protect oral health and your overall health.</p>
             <p class="mt-6 text-xs text-gray-500">To learn more about this service or to schedule an appointment, call London Dental today at <a href="tel:+827321917" class="font-semibold text-teal-700 hover:underline">02-732-1917</a></p>
             `,
-            // Korean
             `
             <p>미국 치과 협회 (ADA)는 신규 치과 환자가 치과를 처음 방문할 때 철저히 검사 받을 것을 권장합니다. 기존 환자는 매년 검사를 받는 것이 좋습니다. 포괄적인 구강 검사를 받으려면 사전 예약이 필요합니다.</p>
             <p>ADA는 "종합 검진"을 "모든 구강 내외 및 연조직의 광범위한 평가 및 기록"으로 정의합니다.</p>
@@ -415,6 +421,9 @@ document.addEventListener('DOMContentLoaded', () => {
             `
         );
 
+        // ... Repeat fillModalContent for ALL other modals (Implants, Hygiene, Extractions, Cosmetic, Restorative, Prosthodontics, Privacy)
+        // Ensure the KO content does not have 'hidden' added within the template literal strings in fillModalContent calls.
+
         // --- IMPLANTS MODAL (#pum-1212) ---
         fillModalContent(
             'implants-modal',
@@ -427,7 +436,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <p class="font-semibold">At London Dental Clinic, if you are 65 or older and have health insurance, you are covered for up to two implants in your lifetime.</p>
             <p class="mt-6 text-xs text-gray-500">To learn more about this service or to schedule an appointment, call London Dental today at <a href="tel:+827321917" class="font-semibold text-teal-700 hover:underline">02-732-1917</a></p>
             `,
-            // Korean
             `
             <p>치과 임플란트는 부상, 치주 질환 또는 기타 이유로 하나 이상의 치아를 잃은 사람들에게 이상적인 치아 복원술입니다. 치과 임플란트는 턱에 외과적으로 삽입하는 금속 기둥입니다. 일단 수술 부위에 자리 잡고 임플란트를 둘러싼 뼈가 치유될 시간이 지나면, 인공 치아를 기둥에 올립니다. 임플란트는 일반적으로 다른 치아 교체 방법보다 비싸지만 탁월한 장점을 제공합니다. 임플란트는 자연치아보다 강하며 일반적으로 10-20년 동안 지속됩니다. 또한 지지를 위해 이웃 치아에 의존하지 않기 때문에 브리지보다 더 유리한 방식입니다.</p>
             <p>임플란트를 시술 받으려면 건강한 잇몸과 임플란트를 지탱할 수 있는 적절한 뼈가 필요합니다. 이는 치과 임플란트의 장기적인 성공에 매우 중요하기 때문에 구강 위생과 정기적인 치과 방문에도 열심히 하셔야 합니다.</p>
@@ -452,7 +460,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <p>We offer a range of treatments to stop or reverse gum disease. In the early stages, most treatment involves non-surgical procedures like scaling, root planing and specialized deep cleanings. In more advanced stages, surgical procedures like opening up the affected gum tissue to remove calculus build-up may be recommended.</p>
             <p class="mt-6 text-xs text-gray-500">To learn more about this service or to schedule an appointment, call London Dental today at <a href="tel:+827321917" class="font-semibold text-teal-700 hover:underline">02-732-1917</a></p>
             `,
-            // Korean
             `
             <h4>치과 위생관리</h4>
             <p>좋은 구강 위생을 유지하는 것은 치아와 잇몸을 위해 할 수 있는 가장 중요한 일 중 하나입니다. 건강한 치아는 여러분을 보기에도 좋고 기분 좋게 할 뿐만 아니라, 먹고 말할 수 있게 해줍니다. 구강 건강은 전반적인 행복에 중요합니다. 적절한 양치질과 치실을 포함한 매일 매일의 구강 관리는 문제가 발생하기 전에 예방하는 데 도움이 될 것입니다.</p>
@@ -484,7 +491,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <p>After the tooth is removed, we will provide care instructions... (rest of paragraph)</p>
             <p class="mt-6 text-xs text-gray-500">To learn more about this service or to schedule an appointment, call London Dental today at <a href="tel:+827321917" class="font-semibold text-teal-700 hover:underline">02-732-1917</a></p>
             `,
-            // Korean
             `
             <p>좋은 구강 위생은 항상 실천해야 합니다. 치아가 하나라도 손실되면 구강 건강과 외모에 큰 영향을 미칠 수 있기 때문입니다. 다음과 같은 이유로 발치를 해야 할 때가 있습니다:</p>
             <ul><li>심한 충치</li><li>진행된 치주 질환</li><li>감염 또는 농양</li><li>교정 치료를 위하여</li><li>위치가 잘못된 치아</li><li>골절 된 치아 또는 치근</li><li>매복치</li></ul>
@@ -514,7 +520,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <p>Tray whitening is a less expensive whitening treatment you can use while in the comfort of your own home. We will first take an impression of your mouth to create a customized clear whitening trays for you to wear. Within a few days your trays will be ready to be picked up and we will show you how to apply the special bleaching material to the trays. The whitening gel trays should be worn 30-60 minutes up to twice a day. At the end of this period, you will see maximum whitening results that are nothing short of dazzling. Occasional treatment can be used at your convenience to maintain your new smile.</p>
             <p class="mt-6 text-xs text-gray-500">To learn more about this service or to schedule an appointment, call London Dental today at <a href="tel:+827321917" class="font-semibold text-teal-700 hover:underline">02-732-1917</a></p>
             `,
-             // Korean
              `
              <h4>심미 치과</h4>
              <p>미용 치과에는 결점을 교정하거나 입 모양을 개선하는 시술이 포함됩니다. 치아의 색상, 정렬, 간격 및 치아의 규칙성은 전반적인 미를 제공하는 특성입니다. 이들 중 어느 것이든 개선시켜 놀랍고도 새로운 미소를 제공해 드릴 수 있습니다.</p>
@@ -544,7 +549,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <p>If you’re having a problem, come in and see us... (rest of paragraph)</p>
             <p class="mt-6 text-xs text-gray-500">To learn more about this service or to schedule an appointment, call London Dental today at <a href="tel:+827321917" class="font-semibold text-teal-700 hover:underline">02-732-1917</a></p>
             `,
-            // Korean
             `
             <h4>접착 및 충전</h4>
             <p>복합 수지 (치아 색 플라스틱 소재)를 사용하여 동시에 충치를 메우고 미소를 개선할 수 있습니다... (나머지 문단)</p>
@@ -584,7 +588,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <p class="font-semibold">At London Dental Clinic, if you are 65 or older and have health insurance, you are covered for a partial denture and/or a complete denture for both upper and/or lower jaw every seven years.</p>
             <p class="mt-6 text-xs text-gray-500">To learn more about this service or to schedule an appointment, call London Dental today at <a href="tel:+827321917" class="font-semibold text-teal-700 hover:underline">02-732-1917</a></p>
             `,
-            // Korean
             `
             <p>런던치과는 귀하의 미소가 발휘될 수 있도록 다양한 진료를 지역사회에 제공하게 된 것을 자랑스럽게 생각합니다. 우리는 다음과 같은 복원 서비스를 제공합니다:</p>
             <h4>크라운 및 브리지</h4>
@@ -636,7 +639,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 <li>By mail: London Dental, 97 Jong-ro 5-gil, Jongno-gu, Seoul</li>
              </ul>
             `,
-            // Korean (Using English as fallback - REPLACE if KO Policy available)
             `
             <p>최종 수정일: 2021년 1월 31일</p>
             <p>본 개인정보처리방침은 귀하가 서비스를 사용할 때 귀하의 정보 수집, 사용 및 공개에 대한 당사의 정책 및 절차를 설명하고 귀하의 개인 정보 보호 권리와 법률이 귀하를 보호하는 방법에 대해 설명합니다.</p>
@@ -665,9 +667,8 @@ document.addEventListener('DOMContentLoaded', () => {
              `
         );
 
-        // --- FAQ MODAL (Content already in HTML, nothing to inject here unless dynamic) ---
-        // If you want to load FAQs dynamically later, you'd call fillModalContent here.
 
+        // --- FAQ MODAL (Content already in HTML) ---
         console.log('Modal content injection complete.');
     }
 
@@ -675,3 +676,4 @@ document.addEventListener('DOMContentLoaded', () => {
     init();
 
 }); // End DOMContentLoaded Listener
+// --- END OF FILE script.js ---
